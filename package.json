@@ -1,21 +1,31 @@
 {
   "name": "the-poem-pocket-api",
   "version": "1.0.0",
-  "description": "An API for \"The Poem Pocket\"",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "test": "mocha --exit"
   },
-  "author": "Aaron Dov Turkel",
+  "keywords": [],
+  "author": "",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.19.0",
-    "express": "^4.17.1",
-    "mongoose": "^5.5.11"
+    "bcryptjs": "^2.4.0",
+    "body-parser": "^1.15.2",
+    "dotenv": "^4.0.0",
+    "express": "^4.14.0",
+    "jsonwebtoken": "^8.2.0",
+    "mongoose": "^5.0.6",
+    "morgan": "^1.7.0",
+    "passport": "^0.3.2",
+    "passport-jwt": "^2.2.1",
+    "passport-local": "^1.0.0"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
-    "chai-http": "^4.3.0",
-    "mocha": "^6.1.4"
+    "chai": "^4.0.1",
+    "chai-http": "^3.0.0",
+    "faker": "^3.1.0",
+    "mocha": "^4.0.1"
   }
 }
