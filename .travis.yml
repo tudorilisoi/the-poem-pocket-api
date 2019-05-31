@@ -2,4 +2,11 @@ language: node_js
 node_js: node
 cache:
   directories:
-    - node_modules
+  - node_modules
+deploy:
+  provider: heroku
+  api_key:
+    secure: fI7K/F5B+oLUreduda3Ur75M9MOd88Q/j5WiSeZvYAVS84SpJrHqfvD9mfsjuhVwJ9ZNdI0JZlW3v3OHBX0CpdtQqeQRb2wyQa1lkQKuljxQQMfSx9agulSe9rKkz6qS7nCORrEy4gjeEbqW3nGiNkcZb9aAHGKTLg4XGVc1NSNQcoCUWNZ0lDCUMVK/lIS3hcUkW7jrV4iZQc/dEY1i3yoWwSVn22Q/xvP+pZVhysP0YfCkbkryjUytVI2SNBzfo4cuKXNiYJULrdOTjLmy2OiXU7Rb5yxr8/46qzTrsg3KHzvehGyZ9w6SpvNzByJpjiDKAUv08dlONztSjB2y7fanZZS2t0JhDiG+hReu8Mk3Js4qgFjiRXsUJBb16ZqHuxitYvcFnkcNENhvKNCiD4IoLwANj3A20yUsyrQH2rdgrvQxdM2q7er/7tCnHDMmuIcAjZoXjW7bXTABPIIg/+eWFrURh7UQr4HZhIImxA40XVfn07/e8lnXS3Uh2NseAaPlf8ltooWaEIc5lzdjIUgZpwjPJvwUT51YWkADfIUYBVe3b+tcxJggUB1VAKDlfyp2lLY+dwzqdRqyjsL04IVeM7yB1tQBQvFnNCS/6871yP9QrWRvWLDgA5EuoCji08KaufCqJoYMtk/bCDfWHc4zD8uZs3rLiNGTA5qRUWY=
+  app: desolate-brushlands-11293
+  on:
+    repo: AaronDovTurkel/the-poem-pocket-api
