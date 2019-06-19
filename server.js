@@ -29,12 +29,11 @@ app.use(morgan('common'));
 
 // CORS
 
-app.use(function (req, res, next) {
-  cors({
-    origin: CLIENT_ORIGIN
-  });
-  next();
-});
+app.use(
+	cors({
+		origin: CLIENT_ORIGIN
+	})
+);
 
 const jwtAuth = passport.authenticate('jwt', { session: false });
 
