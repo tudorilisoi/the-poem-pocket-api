@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 
 const { app, runServer, closeServer } = require('../server');
 const { User } = require('../users');
+const { PoemTitle, PoemStanza } = require('../poem-routing');
 const { JWT_SECRET, TEST_DATABASE_URL } = require('../config');
 
 const expect = chai.expect;
@@ -16,10 +17,21 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 
 describe('Protected endpoint', function () {
-  const username = 'exampleUser';
-  const password = 'examplePass';
-  const firstName = 'Example';
-  const lastName = 'User';
+    const username = 'exampleUser';
+    const password = 'examplePass';
+    const firstName = 'Example';
+    const lastName = 'User';
+
+    const newPoemOne = {
+        "title": "Test Title for Tests One"
+    };
+    const newPoemTwo = {
+        "title": "Test Title for Tests Two"
+    };
+    const newPoemThree = {
+        "title": "Test Title for Tests Three"
+    };
+
 
   before(function () {
     return runServer(TEST_DATABASE_URL);
@@ -30,25 +42,28 @@ describe('Protected endpoint', function () {
   });
 
   beforeEach(function () {
-    return User.hashPassword(password).then(password =>
-      User.create({
-        username,
-        password,
-        firstName,
-        lastName
-      })
-    );
+    return User.hashPassword(password).then(password => {
+        User.create({
+            username,
+            password,
+            firstName,
+            lastName
+        });
+        PoemTitle.create(newPoemOne);
+        PoemTitle.create(newPoemTwo);
+        PoemTitle.create(newPoemThree);
+    });
   });
 
   afterEach(function () {
-    return User.remove({});
+    return PoemTitle.remove({}).then(() => User.remove({}));
   });
 
   describe('/api/poems', function () {
     it('Should reject requests with no credentials', function () {
       return chai
         .request(app)
-        .get('/api/protected')
+        .get('/api/poems/title')
         .then(() =>
           expect.fail(null, null, 'Request should not succeed')
         )
@@ -78,7 +93,7 @@ describe('Protected endpoint', function () {
 
       return chai
         .request(app)
-        .get('/api/protected')
+        .get('/api/poems/title')
         .set('Authorization', `Bearer ${token}`)
         .then(() =>
           expect.fail(null, null, 'Request should not succeed')
@@ -111,7 +126,7 @@ describe('Protected endpoint', function () {
 
       return chai
         .request(app)
-        .get('/api/protected')
+        .get('/api/poems/title')
         .set('authorization', `Bearer ${token}`)
         .then(() =>
           expect.fail(null, null, 'Request should not succeed')
@@ -125,7 +140,7 @@ describe('Protected endpoint', function () {
           expect(res).to.have.status(401);
         });
     });
-    it('Should send some protected data', function () {
+    it('Should test some protected poem data', function () {
       const token = jwt.sign(
         {
           user: {
@@ -144,11 +159,15 @@ describe('Protected endpoint', function () {
 
       return chai
         .request(app)
-        .get('/api/protected')
+        .get('/api/poems/poemPocket')
         .set('authorization', `Bearer ${token}`)
         .then(res => {
           expect(res).to.have.status(200);
-          expect(res.body).to.be.an('object');
+          expect(res.body).to.be.an('array');
+          expect(res.body[0].title).to.equal('Test Title for Tests One');
+          expect(res.body[1].title).to.equal('Test Title for Tests Two');
+          expect(res.body[2].title).to.equal('Test Title for Tests Three');
+          (res.body).map((dates) => {expect(dates.date).to.contain('2019')});
         });
     });
   });
