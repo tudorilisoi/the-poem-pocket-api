@@ -1,6 +1,7 @@
 'use strict';
 const express = require('express');
 const bodyParser = require('body-parser');
+const { expressTryCatchWrapper } = require('../helpers')
 
 const { PoemStanza, PoemTitle } = require('./models');
 
@@ -66,12 +67,12 @@ router.post('/title', jsonParser, (req, res) => {
   const tooSmallField = Object.keys(sizedFields).find(
     field =>
       'min' in sizedFields[field] &&
-            req.body[field].trim().length < sizedFields[field].min
+      req.body[field].trim().length < sizedFields[field].min
   );
   const tooLargeField = Object.keys(sizedFields).find(
     field =>
       'max' in sizedFields[field] &&
-            req.body[field].trim().length > sizedFields[field].max
+      req.body[field].trim().length > sizedFields[field].max
   );
 
   if (tooSmallField || tooLargeField) {
@@ -87,12 +88,12 @@ router.post('/title', jsonParser, (req, res) => {
     });
   }
 
-  let {title = ''} = req.body;
+  let { title = '' } = req.body;
   // Username and password come in pre-trimmed, otherwise we throw an error
   // before this
   title = title.trim();
 
-  return PoemTitle.find({title})
+  return PoemTitle.find({ title })
     .count()
     .then(count => {
       if (count > 0) {
@@ -106,7 +107,7 @@ router.post('/title', jsonParser, (req, res) => {
       }
       PoemTitle
         .create({
-            title: title
+          title: title
         })
         .then(newTitle => res.status(201).json(newTitle));
     })
@@ -116,7 +117,7 @@ router.post('/title', jsonParser, (req, res) => {
       if (err.reason === 'ValidationError') {
         return res.status(err.code).json(err);
       }
-      res.status(500).json({code: 500, message: 'Internal server error'});
+      res.status(500).json({ code: 500, message: 'Internal server error' });
     });
 });
 
@@ -125,24 +126,24 @@ router.post('/title', jsonParser, (req, res) => {
 // if we're creating users. keep in mind, you can also
 // verify this in the Mongo shell.
 router.get('/title', (req, res) => {
-  return PoemTitle.findOne({}, {}, { sort: { 'date' : -1 } })
+  return PoemTitle.findOne({}, {}, { sort: { 'date': -1 } })
     .populate('stanzas')
     .then(title => res.status(200).json(title.fullPoem))
-    .catch(err => res.status(500).json({message: 'Internal server error'}));
+    .catch(err => res.status(500).json({ message: 'Internal server error' }));
 });
 
 router.get('/poemPocket', (req, res) => {
   return PoemTitle.find()
-    .populate({path: 'stanzas'})
+    .populate({ path: 'stanzas' })
     .then(title => {
       res.status(200).json(title);
     })
-    .catch(err => res.status(500).json({message: 'Internal server error'}));
+    .catch(err => res.status(500).json({ message: 'Internal server error' }));
 });
 
 
 // Post to register a new user
-router.post('/stanza', jsonParser, (req, res) => {
+router.post('/stanza', jsonParser, expressTryCatchWrapper(async (req, res) => {
   const requiredFields = ['stanza'];
   const missingField = requiredFields.find(field => !(field in req.body));
 
@@ -199,12 +200,12 @@ router.post('/stanza', jsonParser, (req, res) => {
   const tooSmallField = Object.keys(sizedFields).find(
     field =>
       'min' in sizedFields[field] &&
-            req.body[field].trim().length < sizedFields[field].min
+      req.body[field].trim().length < sizedFields[field].min
   );
   const tooLargeField = Object.keys(sizedFields).find(
     field =>
       'max' in sizedFields[field] &&
-            req.body[field].trim().length > sizedFields[field].max
+      req.body[field].trim().length > sizedFields[field].max
   );
 
   if (tooSmallField || tooLargeField) {
@@ -220,13 +221,13 @@ router.post('/stanza', jsonParser, (req, res) => {
     });
   }
 
-  let {stanza = ''} = req.body;
+  let { stanza = '' } = req.body;
   // Username and password come in pre-trimmed, otherwise we throw an error
   // before this
   stanza = stanza.trim();
 
   return PoemTitle
-    .findOne({}, {}, { sort: { 'date' : -1 } })
+    .findOne({}, {}, { sort: { 'date': -1 } })
     .then(title => {
       const newStanza = new PoemStanza({
         title: title._id,
@@ -236,7 +237,7 @@ router.post('/stanza', jsonParser, (req, res) => {
       newStanza.save(function (err) {
         if (err) return (console.log(err));
         PoemStanza
-          .findOne({}, {}, { sort: { 'date' : -1 } })
+          .findOne({}, {}, { sort: { 'date': -1 } })
           .then(newStanza => {
             title.stanzas.push(newStanza);
             title.save(function (err) {
@@ -245,16 +246,17 @@ router.post('/stanza', jsonParser, (req, res) => {
             });
           })
       });
+      // DRY principle
     })
-    .catch(err => {
-      // Forward validation errors on to the client, otherwise give a 500
-      // error because something unexpected has happened
-      if (err.reason === 'ValidationError') {
-        return res.status(err.code).json(err);
-      }
-      console.log(err);
-      res.status(500).json({code: 500, message: 'Internal server error'});
-    });
-});
+    // .catch(err => {
+    //   // Forward validation errors on to the client, otherwise give a 500
+    //   // error because something unexpected has happened
+    //   if (err.reason === 'ValidationError') {
+    //     return res.status(err.code).json(err);
+    //   }
+    //   console.log(err);
+    //   res.status(500).json({ code: 500, message: 'Internal server error' });
+    // });
+}));
 
-module.exports = {router};
+module.exports = { router };
